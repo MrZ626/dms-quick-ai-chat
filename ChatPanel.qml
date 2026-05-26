@@ -114,7 +114,7 @@ Item {
                         // 用隐藏的单行 Text 测量自然宽度，避免 wrapMode 导致 implicitWidth 不可靠
                         readonly property real hPad: Theme.spacingM * 2
                         readonly property real maxWidth: parent.width * 0.8
-                        readonly property bool isLoading: msgDelegate.status === "loading"
+                        readonly property bool isLoading: msgDelegate.status === "loading" && msgDelegate.content.length === 0
                         readonly property bool isError:   msgDelegate.status === "error"
 
                         // loading 时固定宽度，否则按文字自适应

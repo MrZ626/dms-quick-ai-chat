@@ -1,5 +1,5 @@
 // ChatService.qml
-// 消息状态管理 + DeepSeek API 调用（非流式）
+// 消息状态管理 + DeepSeek API 调用（流式 SSE，SplitParser 逐行推送）
 
 import QtQuick
 import Quickshell.Io
@@ -7,7 +7,6 @@ import Quickshell.Io
 Item {
     id: root
 
-    // DMS 注入的插件 ID（暂未使用，预留给 PluginService 持久化）
     property string pluginId: ""
 
     // ── 设置项 ────────────────────────────────────────────────────
@@ -18,15 +17,8 @@ Item {
     property int    maxTokens:   4096
 
     // ── 对外暴露的状态 ────────────────────────────────────────────
-
-    // 消息列表，每项结构：{ role, content, status }
-    // role: "user" | "assistant"
-    // content: string
-    // status: "ok" | "loading" | "error"
     property ListModel messagesModel: ListModel {}
-
-    // 等待 API 响应时为 true
-    property bool isLoading: false
+    property bool      isLoading:     false
 
     // ── 公开函数 ──────────────────────────────────────────────────
 
@@ -34,10 +26,9 @@ Item {
         if (!text || text.trim().length === 0) return
         if (isLoading) return
 
-        // 追加用户消息
-        messagesModel.append({ role: "user", content: text.trim(), status: "ok" })
-        // 追加 loading 占位（assistant 回复）
-        messagesModel.append({ role: "assistant", content: "", status: "loading" })
+        messagesModel.append({ role: "user",      content: text.trim(), status: "ok"      })
+        messagesModel.append({ role: "assistant", content: "",          status: "loading" })
+        _assistantIndex = messagesModel.count - 1
 
         isLoading = true
         _runRequest()
@@ -48,9 +39,12 @@ Item {
         messagesModel.clear()
     }
 
+    // ── 内部状态 ──────────────────────────────────────────────────
+    property int    _assistantIndex: -1
+    property string _errorBuffer:    ""   // 收集非 SSE 行（API 错误 JSON）
+
     // ── 内部实现 ──────────────────────────────────────────────────
 
-    // 构建发给 API 的消息数组（只取 status=ok 的消息，排除 loading 占位）
     function _buildMessages() {
         const msgs = []
         for (let i = 0; i < messagesModel.count; i++) {
@@ -62,30 +56,82 @@ Item {
         return msgs
     }
 
-    // 启动 curl 请求
     function _runRequest() {
+        _errorBuffer = ""
+
         const payload = JSON.stringify({
             model:       model,
             messages:    _buildMessages(),
             temperature: temperature,
             max_tokens:  maxTokens,
-            stream:      false
+            stream:      true
         })
 
-        const url = baseUrl.replace(/\/$/, "") + "/chat/completions"
-
         chatProcess.command = [
-            "curl", "-s", "-S",
+            "curl", "-s", "-S", "-N",
             "-H", "Content-Type: application/json",
             "-H", "Authorization: Bearer " + apiKey,
             "-d", payload,
-            url
+            baseUrl.replace(/\/$/, "") + "/chat/completions"
         ]
 
         chatProcess.running = true
     }
 
-    // 找到最后一条 loading 消息的下标
+    // 处理单行 SSE（SplitParser 每收到一行就调用一次）
+    function _processLine(line) {
+        if (!line) return
+
+        if (line === "data: [DONE]" || line === "data:[DONE]") {
+            _finalizeStream()
+            return
+        }
+
+        if (line.startsWith("data:")) {
+            const jsonStr = line.substring(5).trim()
+            try {
+                const chunk = JSON.parse(jsonStr)
+                const delta = chunk.choices?.[0]?.delta?.content
+                if (typeof delta === "string" && delta.length > 0) {
+                    _appendDelta(delta)
+                    _errorBuffer = ""   // 收到有效内容，清空错误缓冲
+                }
+                if (chunk.choices?.[0]?.finish_reason === "stop")
+                    _finalizeStream()
+            } catch (e) {
+                // 忽略格式错误的 chunk
+            }
+        } else {
+            // 非 SSE 行（如 API 错误 JSON）先累积，等 streamFinished 再处理
+            _errorBuffer += line
+        }
+    }
+
+    function _appendDelta(delta) {
+        if (_assistantIndex < 0) return
+        const cur = messagesModel.get(_assistantIndex).content || ""
+        messagesModel.setProperty(_assistantIndex, "content", cur + delta)
+    }
+
+    function _finalizeStream() {
+        if (_assistantIndex >= 0)
+            messagesModel.setProperty(_assistantIndex, "status", "ok")
+        isLoading       = false
+        _assistantIndex = -1
+        _errorBuffer    = ""
+    }
+
+    function _setError(msg) {
+        const idx = _assistantIndex >= 0 ? _assistantIndex : _findLoadingIndex()
+        if (idx >= 0) {
+            messagesModel.setProperty(idx, "content", msg)
+            messagesModel.setProperty(idx, "status",  "error")
+        }
+        isLoading       = false
+        _assistantIndex = -1
+        _errorBuffer    = ""
+    }
+
     function _findLoadingIndex() {
         for (let i = messagesModel.count - 1; i >= 0; i--) {
             if (messagesModel.get(i).status === "loading") return i
@@ -93,63 +139,47 @@ Item {
         return -1
     }
 
-    function _setAssistantReply(text) {
-        const idx = _findLoadingIndex()
-        if (idx >= 0) {
-            messagesModel.setProperty(idx, "content", text)
-            messagesModel.setProperty(idx, "status", "ok")
-        }
-        isLoading = false
-    }
-
-    function _setError(msg) {
-        const idx = _findLoadingIndex()
-        if (idx >= 0) {
-            messagesModel.setProperty(idx, "content", msg)
-            messagesModel.setProperty(idx, "status", "error")
-        }
-        isLoading = false
-    }
-
     // ── curl 进程 ─────────────────────────────────────────────────
     Process {
         id: chatProcess
         running: false
 
-        stdout: StdioCollector {
-            id: outputCollector
+        stdout: SplitParser {
+            // 按换行符切割，每条完整的 SSE 行触发一次 onRead
+            splitMarker: "\n"
 
-            // onStreamFinished 在所有 stdout 数据到齐后触发
-            // text 是本次运行的完整输出，每次 Process 重新启动都会重置
-            onStreamFinished: {
-                if (!root.isLoading) return  // 已被 onExited 的非零退出码处理过
-
-                if (!text || text.trim().length === 0) {
-                    root._setError("收到空响应")
-                    return
-                }
-
-                try {
-                    const data = JSON.parse(text)
-                    const content = data.choices?.[0]?.message?.content
-                    if (typeof content === "string" && content.length > 0) {
-                        root._setAssistantReply(content)
-                    } else if (data.error) {
-                        root._setError("API 错误：" + (data.error.message || JSON.stringify(data.error)))
-                    } else {
-                        root._setError("解析失败：" + text.slice(0, 300))
-                    }
-                } catch (e) {
-                    root._setError("JSON 解析失败：" + text.slice(0, 300))
-                }
-            }
+            onRead: line => root._processLine(line.trim())
         }
 
-        // onExited 只处理 curl 本身失败（网络不通、命令错误等）
         onExited: exitCode => {
-            if (exitCode !== 0 && root.isLoading) {
+            if (!root.isLoading) return
+
+            if (exitCode !== 0) {
                 root._setError("请求失败（curl exit " + exitCode + "）")
+                return
             }
+
+            // curl 正常退出但没收到 [DONE]（兜底）
+            const idx        = root._assistantIndex
+            const hasContent = idx >= 0 && (root.messagesModel.get(idx).content || "").length > 0
+
+            if (hasContent) {
+                root._finalizeStream()
+                return
+            }
+
+            // 没有流式内容——尝试把错误缓冲当 JSON 解析
+            const errText = root._errorBuffer.trim()
+            if (errText) {
+                try {
+                    const data = JSON.parse(errText)
+                    if (data.error) {
+                        root._setError("API 错误：" + (data.error.message || JSON.stringify(data.error)))
+                        return
+                    }
+                } catch (e) {}
+            }
+            root._setError("收到空响应")
         }
     }
 }

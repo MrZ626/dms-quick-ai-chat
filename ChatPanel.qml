@@ -34,6 +34,31 @@ Item {
         anchors.margins: Theme.spacingM
         spacing: Theme.spacingS
 
+        // 右上角工具栏：设置、 清空
+        Row {
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.margins: Theme.spacingXS
+            spacing: 0
+            z: 1
+
+            DankActionButton {
+                iconName: "delete_sweep"
+                tooltipText: "清空对话"
+                buttonSize: 28
+                iconSize: 14
+                onClicked: chatService.clearHistory()
+            }
+
+                DankActionButton {
+                    iconName: "settings"
+                    tooltipText: "设置"
+                    buttonSize: 28
+                    iconSize: 14
+                    onClicked: root.showSettings = true
+                }
+        }
+
         // ── 消息列表 ──────────────────────────────────────────────
         Rectangle {
             Layout.fillWidth: true
@@ -213,14 +238,6 @@ Item {
                     spacing: Theme.spacingXS
 
                     Item { Layout.fillWidth: true }
-
-                    DankActionButton {
-                        iconName: "delete_sweep"
-                        tooltipText: "清空对话"
-                        buttonSize: 32
-                        iconSize: 16
-                        onClicked: chatService.clearHistory()
-                    }
 
                     DankActionButton {
                         iconName: "send"

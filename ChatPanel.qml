@@ -17,16 +17,20 @@ Item {
     // 唯一外部依赖，由 QuickAiChat.qml 注入
     required property var chatService
 
-    // 通知 slideout 收起（绑定到 Escape 键）
+    // 通知 slideout 收起（绑定到 Esc 键）
     signal hideRequested
 
     // 控制设置面板显隐
     property bool showSettings: false
 
-    // Escape 统一入口：设置页打开时关闭设置页，否则收起面板
+    // Esc 统一入口：
+    //   生成中 → 打断生成
+    //   设置页打开 → 关闭设置页
+    //   否则 → 收起面板
     function handleEscape() {
-        if (showSettings) {
-            // 走设置页的正常关闭流程（写回并保存）
+        if (chatService.isLoading) {
+            chatService.abortRequest()
+        } else if (showSettings) {
             if (settingsLoader.item)
                 settingsLoader.item.triggerClose()
         } else {
@@ -34,7 +38,7 @@ Item {
         }
     }
 
-    // 兜底：焦点不在输入框时（如设置页关闭后）也能响应 Escape
+    // 兜底：焦点不在输入框时（如设置页关闭后）也能响应 Esc
     Keys.onEscapePressed: event => {
         handleEscape()
         event.accepted = true
@@ -274,7 +278,7 @@ Item {
                                 left: parent.left
                                 top: parent.top
                             }
-                            text: "输入消息内容， Enter 发送\nShift+Enter 换行，Esc 关闭"
+                            text: "输入消息内容， Enter 发送\nShift+Enter 换行，Esc 中断生成/关闭"
                             color: Theme.surfaceVariantText
                             font.pixelSize: Theme.fontSizeMedium
                             visible: composer.text.length === 0

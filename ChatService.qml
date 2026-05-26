@@ -61,6 +61,25 @@ Item {
         messagesModel.clear()
     }
 
+    // 中断正在进行的生成（保留已生成的内容）
+    function abortRequest() {
+        if (!isLoading) return
+        chatProcess.running = false   // kill curl
+        // 把 loading 气泡变成普通消息（有内容则保留，无内容则删掉）
+        const idx = _assistantIndex >= 0 ? _assistantIndex : _findLoadingIndex()
+        if (idx >= 0) {
+            const cur = messagesModel.get(idx).content || ""
+            if (cur.length > 0) {
+                messagesModel.setProperty(idx, "status", "ok")
+            } else {
+                messagesModel.remove(idx)
+            }
+        }
+        isLoading       = false
+        _assistantIndex = -1
+        _errorBuffer    = ""
+    }
+
     // ── 内部状态 ──────────────────────────────────────────────────
     property int    _assistantIndex: -1
     property string _errorBuffer:    ""   // 收集非 SSE 行（API 错误 JSON）

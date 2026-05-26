@@ -98,6 +98,7 @@ Item {
                     // ListView 注入的数据
                     required property string role
                     required property string content
+                    required property string status
 
                     width: messageList.width
                     // 高度由气泡决定，气泡高度由文字 implicitHeight 决定（无循环依赖）
@@ -113,24 +114,34 @@ Item {
                         // 用隐藏的单行 Text 测量自然宽度，避免 wrapMode 导致 implicitWidth 不可靠
                         readonly property real hPad: Theme.spacingM * 2
                         readonly property real maxWidth: parent.width * 0.8
-                        width: Math.min(bubbleSizer.implicitWidth + hPad, maxWidth)
-                        height: bubbleText.implicitHeight + Theme.spacingS * 2
+                        readonly property bool isLoading: msgDelegate.status === "loading"
+                        readonly property bool isError:   msgDelegate.status === "error"
+
+                        // loading 时固定宽度，否则按文字自适应
+                        width: isLoading
+                            ? 80
+                            : Math.min(bubbleSizer.implicitWidth + hPad, maxWidth)
+                        height: (isLoading ? loadingDots.implicitHeight : bubbleText.implicitHeight)
+                            + Theme.spacingS * 2
 
                         radius: Theme.cornerRadius
-                        color: msgDelegate.role === "user" ? "#1a2a4a" : "#202020"
-                        border.color: msgDelegate.role === "user" ? "#80b1e5" : "#2a5c90"
+                        color: msgDelegate.role === "user"
+                            ? "#1a2a4a"
+                            : (isError ? "#2a1a1a" : "#202020")
+                        border.color: msgDelegate.role === "user"
+                            ? "#80b1e5"
+                            : (isError ? "#a52e2e" : "#356496")
                         border.width: 1
 
-                        // 隐藏的单行测量器，只用于确定气泡宽度
-                        // 用 StyledText 保证字体 metrics 与可见文字一致
+                        // 隐藏的单行测量器（仅 status=ok 时有意义）
                         StyledText {
                             id: bubbleSizer
                             text: msgDelegate.content
                             font.pixelSize: Theme.fontSizeMedium
                             visible: false
-                            // 无 wrapMode，implicitWidth = 文字的真实单行宽度
                         }
 
+                        // 正常/错误 内容
                         StyledText {
                             id: bubbleText
                             anchors {
@@ -144,8 +155,40 @@ Item {
                             text: msgDelegate.content
                             wrapMode: Text.WordWrap
                             elide: Text.ElideNone
-                            color: "#e8eaf0"
+                            color: bubble.isError ? "#e8a0a0" : "#e8eaf0"
                             font.pixelSize: Theme.fontSizeMedium
+                            visible: !bubble.isLoading
+                        }
+
+                        // loading 动画（三个跳动的点）
+                        Row {
+                            id: loadingDots
+                            anchors {
+                                left: parent.left
+                                top: parent.top
+                                leftMargin: Theme.spacingM
+                                topMargin: Theme.spacingS
+                            }
+                            spacing: 4
+                            visible: bubble.isLoading
+
+                            Repeater {
+                                model: 3
+                                delegate: Rectangle {
+                                    required property int index
+                                    width: 6; height: 6; radius: 3
+                                    color: "#80b0e0"
+
+                                    SequentialAnimation on y {
+                                        loops: Animation.Infinite
+                                        running: bubble.isLoading
+                                        PauseAnimation { duration: index * 150 }
+                                        NumberAnimation { to: -5; duration: 250; easing.type: Easing.InOutSine }
+                                        NumberAnimation { to:  0; duration: 250; easing.type: Easing.InOutSine }
+                                        PauseAnimation { duration: (2 - index) * 150 }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -158,6 +201,8 @@ Item {
             height: 100
             radius: Theme.cornerRadius
             color: Theme.surfaceContainerHigh
+            opacity: chatService.isLoading ? 0.5 : 1.0
+            Behavior on opacity { NumberAnimation { duration: 150 } }
             border.color: composerFlick.activeFocus || composer.activeFocus
                 ? Theme.primary : Theme.outlineMedium
             border.width: composerFlick.activeFocus || composer.activeFocus ? 2 : 1
@@ -220,8 +265,9 @@ Item {
                                     // 换行
                                     event.accepted = false
                                 } else {
-                                    // 发送
-                                    root.triggerSendMessage()
+                                    // 发送（loading 中忽略）
+                                    if (!chatService.isLoading)
+                                        root.triggerSendMessage()
                                     event.accepted = true
                                 }
                             }
@@ -247,6 +293,7 @@ Item {
                         tooltipText: "发送"
                         buttonSize: 32
                         iconSize: 16
+                        enabled: !chatService.isLoading
                         onClicked: root.triggerSendMessage()
                     }
                 }
@@ -257,12 +304,27 @@ Item {
     // ── 设置覆盖层 ────────────────────────────────────────────────
     // active 时才实例化，避免常驻内存
     Loader {
+        id: settingsLoader
         anchors.fill: parent
         active: root.showSettings
         sourceComponent: Component {
             ChatSettings {
                 anchors.fill: parent
-                onCloseRequested: root.showSettings = false
+                // 从 chatService 读取初始值
+                baseUrl:     chatService.baseUrl
+                model:       chatService.model
+                apiKey:      chatService.apiKey
+                temperature: chatService.temperature
+                maxTokens:   chatService.maxTokens
+                // 返回时将修改后的值写回 chatService
+                onCloseRequested: {
+                    chatService.baseUrl     = this.baseUrl
+                    chatService.model       = this.model
+                    chatService.apiKey      = this.apiKey
+                    chatService.temperature = this.temperature
+                    chatService.maxTokens   = this.maxTokens
+                    root.showSettings = false
+                }
             }
         }
     }

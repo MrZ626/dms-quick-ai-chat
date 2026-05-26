@@ -140,7 +140,7 @@ Item {
                         // loading 时固定高度（给点动画留出空间），否则按文字自适应
                         width: isLoading
                             ? 72
-                            : Math.min(bubbleSizer.implicitWidth + hPad, maxWidth)
+                            : Math.min(bubbleSizer.contentWidth + hPad, maxWidth)
                         height: (isLoading ? 28 : bubbleText.implicitHeight)
                             + Theme.spacingS * 2
 
@@ -153,12 +153,15 @@ Item {
                             : (isError ? "#a52e2e" : "#356496")
                         border.width: 1
 
-                        // 隐藏的单行测量器（仅 status=ok 时有意义）
-                        StyledText {
+                        // 隐藏的单行测量器：用 TextEdit 保证 metrics 与 bubbleText 完全一致
+                        TextEdit {
                             id: bubbleSizer
                             text: msgDelegate.content
                             font.pixelSize: Theme.fontSizeMedium
+                            wrapMode: TextEdit.NoWrap
+                            width: 10000        // 不限宽，contentWidth 即单行真实宽度
                             visible: false
+                            enabled: false
                         }
 
                         // 气泡 （TextEdit 支持鼠标选中复制）

@@ -166,7 +166,7 @@ Item {
 
             DankActionButton {
                 iconName: "arrow_back"
-                tooltipText: "返回"
+                tooltipText: "保存并返回"
                 onClicked: {
                     // 返回时一次性写回所有设置项
                     root.baseUrl     = fieldBaseUrl.currentText

@@ -23,6 +23,8 @@ Item {
     // 控制设置面板显隐
     property bool showSettings: false
 
+    Component.onCompleted: composer.forceActiveFocus()
+
     // 便捷函数：读取输入框内容并发送
     function triggerSendMessage() {
         if (composer.text.trim().length === 0)
@@ -319,6 +321,7 @@ Item {
                     chatService.temperature = this.temperature
                     chatService.maxTokens   = this.maxTokens
                     root.showSettings = false
+                    composer.forceActiveFocus()
                 }
             }
         }

@@ -1,7 +1,6 @@
 // QuickAiChat.qml
 // daemon 入口：持有 ChatService 单例，为每个屏幕创建一个 DankSlideout
 //
-// DMS 会自动注入 pluginService 和 pluginId。
 // toggle() 函数供 niri 快捷键通过 IPC 调用：
 //   dms ipc call plugins toggle quickAiChat
 
@@ -13,9 +12,8 @@ import "."
 Item {
     id: root
 
-    // DMS 自动注入
+    // DMS 自动注入（备用，目前未使用）
     property var pluginService: null
-    property string pluginId: "quickAiChat"
 
     // 供 IPC 调用：dms ipc call plugins toggle quickAiChat
     function toggle() {
@@ -28,7 +26,6 @@ Item {
     // 同名导致 content: ChatPanel { chatService: chatService } 右侧解析到自身属性（undefined）
     ChatService {
         id: chatLogic
-        pluginId: root.pluginId
     }
 
     // Variants 为每个屏幕创建一个 slideout 实例

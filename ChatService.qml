@@ -8,7 +8,8 @@ import qs.Services
 Item {
     id: root
 
-    property string pluginId: ""
+    // PluginService 持久化的命名空间 key，与 plugin.json 的 id 一致
+    readonly property string pluginId: "quickAiChat"
 
     // ── 设置项 ────────────────────────────────────────────────────
     property string baseUrl:     ""

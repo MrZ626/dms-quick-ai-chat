@@ -20,6 +20,9 @@ Item {
     // 通知 slideout 收起（绑定到 Escape 键）
     signal hideRequested
 
+    // 控制设置面板显隐
+    property bool showSettings: false
+
     // 便捷函数：读取输入框内容并发送
     function sendCurrentMessage() {
         if (composer.text.trim().length === 0)
@@ -45,18 +48,18 @@ Item {
             DankActionButton {
                 iconName: "delete_sweep"
                 tooltipText: "清空对话"
-                buttonSize: 28
-                iconSize: 14
+                buttonSize: 32
+                iconSize: 24
                 onClicked: chatService.clearHistory()
             }
 
-                DankActionButton {
-                    iconName: "settings"
-                    tooltipText: "设置"
-                    buttonSize: 28
-                    iconSize: 14
-                    onClicked: root.showSettings = true
-                }
+            DankActionButton {
+                iconName: "settings"
+                tooltipText: "设置"
+                buttonSize: 32
+                iconSize: 24
+                onClicked: root.showSettings = true
+            }
         }
 
         // ── 消息列表 ──────────────────────────────────────────────
@@ -247,6 +250,19 @@ Item {
                         onClicked: root.sendCurrentMessage()
                     }
                 }
+            }
+        }
+    }
+
+    // ── 设置覆盖层 ────────────────────────────────────────────────
+    // active 时才实例化，避免常驻内存
+    Loader {
+        anchors.fill: parent
+        active: root.showSettings
+        sourceComponent: Component {
+            ChatSettings {
+                anchors.fill: parent
+                onCloseRequested: root.showSettings = false
             }
         }
     }

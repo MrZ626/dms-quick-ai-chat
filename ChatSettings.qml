@@ -65,6 +65,8 @@ Item {
                 selectionColor: Theme.primary
                 selectedTextColor: Theme.onPrimary
                 clip: true
+
+                HoverHandler { cursorShape: Qt.IBeamCursor }
             }
         }
     }
@@ -107,6 +109,8 @@ Item {
             to: parent.to
             stepSize: parent.stepSize
             value: parent.value
+
+            HoverHandler { cursorShape: Qt.PointingHandCursor }
 
             background: Rectangle {
                 x: slider.leftPadding

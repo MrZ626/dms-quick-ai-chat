@@ -246,11 +246,14 @@ Item {
 
                         // 占位提示（TextEdit 没有内置 placeholderText）
                         StyledText {
-                            anchors.fill: parent
-                            text: "输入消息…"
+                            anchors {
+                                left: parent.left
+                                top: parent.top
+                            }
+                            text: "输入消息内容， Enter 发送\nShift+Enter 换行，Esc 关闭"
                             color: Theme.surfaceVariantText
                             font.pixelSize: Theme.fontSizeMedium
-                            visible: composer.text.length === 0 && !composer.activeFocus
+                            visible: composer.text.length === 0
                         }
 
                         // Enter 发送，Shift+Enter 换行，Escape 关闭面板

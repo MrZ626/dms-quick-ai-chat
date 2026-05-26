@@ -117,12 +117,12 @@ Item {
                         readonly property bool isLoading: msgDelegate.status === "loading" && msgDelegate.content.length === 0
                         readonly property bool isError:   msgDelegate.status === "error"
 
-                        // loading 时固定宽度，否则按文字自适应
+                        // loading 时固定高度（给点动画留出空间），否则按文字自适应
                         width: isLoading
-                            ? 80
+                            ? 72
                             : Math.min(bubbleSizer.implicitWidth + hPad, maxWidth)
-                        height: (isLoading ? loadingDots.implicitHeight : bubbleText.implicitHeight)
-                            + Theme.spacingS * 2
+                        height: (isLoading ? 28 : bubbleText.implicitHeight)
+                            + Theme.spacingM * 2
 
                         radius: Theme.cornerRadius
                         color: msgDelegate.role === "user"
@@ -163,29 +163,24 @@ Item {
                         // loading 动画（三个跳动的点）
                         Row {
                             id: loadingDots
-                            anchors {
-                                left: parent.left
-                                top: parent.top
-                                leftMargin: Theme.spacingM
-                                topMargin: Theme.spacingS
-                            }
-                            spacing: 4
+                            anchors.centerIn: parent
+                            spacing: 6
                             visible: bubble.isLoading
 
                             Repeater {
                                 model: 3
                                 delegate: Rectangle {
                                     required property int index
-                                    width: 6; height: 6; radius: 3
+                                    width: 8; height: 8; radius: 4
                                     color: "#80b0e0"
 
                                     SequentialAnimation on y {
                                         loops: Animation.Infinite
                                         running: bubble.isLoading
-                                        PauseAnimation { duration: index * 150 }
-                                        NumberAnimation { to: -5; duration: 250; easing.type: Easing.InOutSine }
-                                        NumberAnimation { to:  0; duration: 250; easing.type: Easing.InOutSine }
-                                        PauseAnimation { duration: (2 - index) * 150 }
+                                        PauseAnimation { duration: index * 160 }
+                                        NumberAnimation { to: -7; duration: 260; easing.type: Easing.InOutSine }
+                                        NumberAnimation { to:  0; duration: 260; easing.type: Easing.InOutSine }
+                                        PauseAnimation { duration: (2 - index) * 160 }
                                     }
                                 }
                             }

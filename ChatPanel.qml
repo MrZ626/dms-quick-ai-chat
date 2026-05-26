@@ -124,7 +124,7 @@ Item {
                             ? 72
                             : Math.min(bubbleSizer.implicitWidth + hPad, maxWidth)
                         height: (isLoading ? 28 : bubbleText.implicitHeight)
-                            + Theme.spacingM * 2
+                            + Theme.spacingS * 2
 
                         radius: Theme.cornerRadius
                         color: msgDelegate.role === "user"
@@ -155,7 +155,7 @@ Item {
                                 topMargin: Theme.spacingS
                             }
                             text: msgDelegate.content
-                            wrapMode: Text.WordWrap
+                            wrapMode: Text.Wrap
                             elide: Text.ElideNone
                             color: bubble.isError ? "#e8a0a0" : "#e8eaf0"
                             font.pixelSize: Theme.fontSizeMedium

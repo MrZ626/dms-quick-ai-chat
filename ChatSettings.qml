@@ -139,6 +139,16 @@ Item {
         }
     }
 
+    // 写回所有字段并发出 closeRequested（返回按钮和 Escape 共用）
+    function triggerClose() {
+        root.baseUrl     = fieldBaseUrl.currentText
+        root.model       = fieldModel.currentText
+        root.apiKey      = fieldApiKey.currentText
+        root.maxTokens   = parseInt(fieldMaxTokens.currentText) || root.maxTokens
+        root.temperature = sliderTemp.currentValue
+        root.closeRequested()
+    }
+
     // 拦截所有鼠标事件，防止穿透到下层 ChatPanel
     MouseArea {
         anchors.fill: parent
@@ -165,15 +175,7 @@ Item {
             DankActionButton {
                 iconName: "arrow_back"
                 tooltipText: "保存并返回"
-                onClicked: {
-                    // 返回时一次性写回所有设置项
-                    root.baseUrl     = fieldBaseUrl.currentText
-                    root.model       = fieldModel.currentText
-                    root.apiKey      = fieldApiKey.currentText
-                    root.maxTokens   = parseInt(fieldMaxTokens.currentText) || root.maxTokens
-                    root.temperature = sliderTemp.currentValue
-                    root.closeRequested()
-                }
+                onClicked: root.triggerClose()
             }
 
             StyledText {

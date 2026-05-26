@@ -23,6 +23,24 @@ Item {
     // 控制设置面板显隐
     property bool showSettings: false
 
+    // Escape 统一入口：设置页打开时关闭设置页，否则收起面板
+    function handleEscape() {
+        if (showSettings) {
+            // 走设置页的正常关闭流程（写回并保存）
+            if (settingsLoader.item)
+                settingsLoader.item.triggerClose()
+        } else {
+            hideRequested()
+        }
+    }
+
+    // 兜底：焦点不在输入框时（如设置页关闭后）也能响应 Escape
+    Keys.onEscapePressed: event => {
+        handleEscape()
+        event.accepted = true
+    }
+    focus: true
+
     Component.onCompleted: composer.forceActiveFocus()
 
     // 便捷函数：读取输入框内容并发送
@@ -256,10 +274,10 @@ Item {
                             visible: composer.text.length === 0
                         }
 
-                        // Enter 发送，Shift+Enter 换行，Escape 关闭面板
+                        // Enter 发送，Shift+Enter 换行，Escape 由根节点统一处理
                         Keys.onPressed: event => {
                             if (event.key === Qt.Key_Escape) {
-                                root.hideRequested()
+                                root.handleEscape()
                                 event.accepted = true
                             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 if (event.modifiers & Qt.ShiftModifier) {

@@ -41,14 +41,6 @@ Item {
         PluginService.savePluginData(pluginId, "maxTokens",   maxTokens)
     }
 
-    // 外部（如 PluginService 管理界面）修改设置时重新加载
-    Connections {
-        target: PluginService
-        function onPluginDataChanged(pId) {
-            if (pId === root.pluginId) root.loadSettings()
-        }
-    }
-
     // ── 公开函数 ──────────────────────────────────────────────────
 
     function sendMessage(text) {

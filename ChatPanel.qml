@@ -34,34 +34,6 @@ Item {
         anchors.margins: Theme.spacingM
         spacing: Theme.spacingS
 
-        // ── 顶栏 ─────────────────────────────────────────────────
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: Theme.spacingS
-
-            StyledText {
-                text: "AI Chat"
-                font.pixelSize: Theme.fontSizeLarge
-                font.weight: Font.Medium
-                color: Theme.surfaceText
-                Layout.fillWidth: true
-            }
-
-            // 清空按钮
-            DankActionButton {
-                iconName: "delete_sweep"
-                tooltipText: "清空对话"
-                onClicked: chatService.clearHistory()
-            }
-
-            // 关闭按钮
-            DankActionButton {
-                iconName: "close"
-                tooltipText: "关闭"
-                onClicked: root.hideRequested()
-            }
-        }
-
         // ── 消息列表 ──────────────────────────────────────────────
         Rectangle {
             Layout.fillWidth: true
@@ -196,22 +168,24 @@ Item {
                     }
                 }
 
-                // 底部工具栏：提示文字 + 发送按钮
+                // 底部工具栏：发送按钮
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: Theme.spacingXS
 
-                    StyledText {
-                        text: "Enter 发送 · Shift+Enter 换行"
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.surfaceVariantText
-                        Layout.fillWidth: true
+                    Item { Layout.fillWidth: true }
+
+                    DankActionButton {
+                        iconName: "delete_sweep"
+                        tooltipText: "清空对话"
+                        buttonSize: 32
+                        iconSize: 16
+                        onClicked: chatService.clearHistory()
                     }
 
                     DankActionButton {
                         iconName: "send"
                         tooltipText: "发送"
-                        enabled: composer.text.trim().length > 0
                         buttonSize: 32
                         iconSize: 16
                         onClicked: root.sendCurrentMessage()

@@ -38,8 +38,10 @@ Item {
             id: slideout
             required property var modelData  // Quickshell 注入的屏幕对象
 
-            title: "AI Chat"
+            title: "Quick Chat"
             slideoutWidth: 480
+            expandable: true
+            expandedWidthValue: 960
 
             content: ChatPanel {
                 chatService: chatService

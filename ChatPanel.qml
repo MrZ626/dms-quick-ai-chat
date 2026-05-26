@@ -161,8 +161,8 @@ Item {
                             visible: false
                         }
 
-                        // 正常/错误 内容
-                        StyledText {
+                        // 气泡 （TextEdit 支持鼠标选中复制）
+                        TextEdit {
                             id: bubbleText
                             anchors {
                                 left: parent.left
@@ -174,9 +174,12 @@ Item {
                             }
                             text: msgDelegate.content
                             wrapMode: Text.Wrap
-                            elide: Text.ElideNone
+                            readOnly: true
+                            selectByMouse: true
                             color: bubble.isError ? "#e8a0a0" : "#e8eaf0"
                             font.pixelSize: Theme.fontSizeMedium
+                            selectionColor: Theme.primary
+                            selectedTextColor: Theme.onPrimary
                             visible: !bubble.isLoading
                         }
 

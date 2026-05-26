@@ -320,6 +320,7 @@ Item {
                     chatService.apiKey      = this.apiKey
                     chatService.temperature = this.temperature
                     chatService.maxTokens   = this.maxTokens
+                    chatService.saveSettings()
                     root.showSettings = false
                     composer.forceActiveFocus()
                 }

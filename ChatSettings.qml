@@ -12,14 +12,12 @@ Item {
 
     signal closeRequested
 
-    // ── 设置项（暂时硬编码，后续接 PluginService）────────────────
-    property string baseUrl:      "https://api.deepseek.com"
-    property string model:        "deepseek-v4-flash"
-    property string apiKey:       ""
-    property string apiKeyEnvVar: ""
-    property real   temperature:  1.0
-    property int    maxTokens:    4096
-    property bool   saveKey:      true
+    // ── 设置项（由 ChatPanel 从 chatService 注入）─────────────────
+    property string baseUrl:     ""
+    property string model:       ""
+    property string apiKey:      ""
+    property real   temperature: 0
+    property int    maxTokens:   0
 
     // ── 可编辑文本行 ──────────────────────────────────────────────
     component EditRow: ColumnLayout {

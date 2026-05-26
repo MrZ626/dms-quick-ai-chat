@@ -3,6 +3,7 @@
 
 import QtQuick
 import Quickshell.Io
+import qs.Services
 
 Item {
     id: root
@@ -10,15 +11,43 @@ Item {
     property string pluginId: ""
 
     // ── 设置项 ────────────────────────────────────────────────────
-    property string baseUrl:     "https://api.deepseek.com"
-    property string model:       "deepseek-v4-flash"
+    property string baseUrl:     ""
+    property string model:       ""
     property string apiKey:      ""
-    property real   temperature: 1.0
-    property int    maxTokens:   4096
+    property real   temperature: 0
+    property int    maxTokens:   0
 
     // ── 对外暴露的状态 ────────────────────────────────────────────
     property ListModel messagesModel: ListModel {}
     property bool      isLoading:     false
+
+    // ── 设置持久化 ────────────────────────────────────────────────
+
+    Component.onCompleted: loadSettings()
+
+    function loadSettings() {
+        baseUrl     = String(PluginService.loadPluginData(pluginId, "baseUrl",     "https://api.deepseek.com")).trim()
+        model       = String(PluginService.loadPluginData(pluginId, "model",       "deepseek-v4-flash")).trim()
+        apiKey      = String(PluginService.loadPluginData(pluginId, "apiKey",      "")).trim()
+        temperature = Number(PluginService.loadPluginData(pluginId, "temperature", 1.0))
+        maxTokens   = parseInt(PluginService.loadPluginData(pluginId, "maxTokens", 4096))
+    }
+
+    function saveSettings() {
+        PluginService.savePluginData(pluginId, "baseUrl",     baseUrl)
+        PluginService.savePluginData(pluginId, "model",       model)
+        PluginService.savePluginData(pluginId, "apiKey",      apiKey)
+        PluginService.savePluginData(pluginId, "temperature", temperature)
+        PluginService.savePluginData(pluginId, "maxTokens",   maxTokens)
+    }
+
+    // 外部（如 PluginService 管理界面）修改设置时重新加载
+    Connections {
+        target: PluginService
+        function onPluginDataChanged(pId) {
+            if (pId === root.pluginId) root.loadSettings()
+        }
+    }
 
     // ── 公开函数 ──────────────────────────────────────────────────
 

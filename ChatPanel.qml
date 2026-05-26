@@ -331,20 +331,9 @@ Item {
         sourceComponent: Component {
             ChatSettings {
                 anchors.fill: parent
-                // 从 chatService 读取初始值
-                baseUrl:     chatService.baseUrl
-                model:       chatService.model
-                apiKey:      chatService.apiKey
-                temperature: chatService.temperature
-                maxTokens:   chatService.maxTokens
-                // 返回时将修改后的值写回 chatService
+                chatService: root.chatService
+                // 返回时只需关闭面板，数据已在 triggerClose() 内写回
                 onCloseRequested: {
-                    chatService.baseUrl     = this.baseUrl
-                    chatService.model       = this.model
-                    chatService.apiKey      = this.apiKey
-                    chatService.temperature = this.temperature
-                    chatService.maxTokens   = this.maxTokens
-                    chatService.saveSettings()
                     root.showSettings = false
                     composer.forceActiveFocus()
                 }

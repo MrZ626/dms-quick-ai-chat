@@ -12,12 +12,8 @@ Item {
 
     signal closeRequested
 
-    // ── 设置项（由 ChatPanel 从 chatService 注入）─────────────────
-    property string baseUrl:     ""
-    property string model:       ""
-    property string apiKey:      ""
-    property real   temperature: 0
-    property int    maxTokens:   0
+    // 直接持有 chatService 引用，无需再复制一份属性
+    required property var chatService
 
     // ── 可编辑文本行 ──────────────────────────────────────────────
     component EditRow: ColumnLayout {
@@ -139,13 +135,14 @@ Item {
         }
     }
 
-    // 写回所有字段并发出 closeRequested（返回按钮和 Escape 共用）
+    // 写回 chatService 并发出 closeRequested（返回按钮和 Escape 共用）
     function triggerClose() {
-        root.baseUrl     = fieldBaseUrl.currentText
-        root.model       = fieldModel.currentText
-        root.apiKey      = fieldApiKey.currentText
-        root.maxTokens   = parseInt(fieldMaxTokens.currentText) || root.maxTokens
-        root.temperature = sliderTemp.currentValue
+        chatService.baseUrl     = fieldBaseUrl.currentText
+        chatService.model       = fieldModel.currentText
+        chatService.apiKey      = fieldApiKey.currentText
+        chatService.maxTokens   = parseInt(fieldMaxTokens.currentText) || chatService.maxTokens
+        chatService.temperature = sliderTemp.currentValue
+        chatService.saveSettings()
         root.closeRequested()
     }
 
@@ -195,32 +192,32 @@ Item {
             EditRow {
                 id: fieldBaseUrl
                 label: "服务商URL"
-                value: root.baseUrl
+                value: root.chatService.baseUrl
             }
 
             EditRow {
                 id: fieldModel
                 label: "模型ID"
-                value: root.model
+                value: root.chatService.model
             }
 
             EditRow {
                 id: fieldApiKey
                 label: "API Key"
-                value: root.apiKey
+                value: root.chatService.apiKey
                 obscure: true
             }
 
             EditRow {
                 id: fieldMaxTokens
                 label: "最大Token数"
-                value: root.maxTokens.toString()
+                value: root.chatService.maxTokens.toString()
             }
 
             SliderRow {
                 id: sliderTemp
                 label: "温度（越高越随机）"
-                value: root.temperature
+                value: root.chatService.temperature
                 from: 0
                 to: 2
                 stepSize: 0.1

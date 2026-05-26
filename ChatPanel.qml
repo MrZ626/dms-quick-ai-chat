@@ -82,19 +82,29 @@ Item {
                         anchors.right: msgDelegate.role === "user" ? parent.right : undefined
                         anchors.left:  msgDelegate.role === "user" ? undefined   : parent.left
 
-                        // 固定最大宽度为 80%，避免 implicitWidth 循环依赖
-                        width: parent.width * 0.8
-                        // 高度由内部文字的 implicitHeight 撑开
+                        // 用隐藏的单行 Text 测量自然宽度，避免 wrapMode 导致 implicitWidth 不可靠
+                        readonly property real hPad: Theme.spacingM * 2
+                        readonly property real maxWidth: parent.width * 0.8
+                        width: Math.min(bubbleSizer.implicitWidth + hPad, maxWidth)
                         height: bubbleText.implicitHeight + Theme.spacingS * 2
 
                         radius: Theme.cornerRadius
-                        color: msgDelegate.role === "user"
-                            ? Theme.primary
-                            : Theme.surfaceContainerHigh
+                        color: msgDelegate.role === "user" ? "#1a2a4a" : "#202020"
+                        border.color: msgDelegate.role === "user" ? "#80b1e5" : "#2a5c90"
+                        border.width: 1
+
+                        // 隐藏的单行测量器，只用于确定气泡宽度
+                        // 用 StyledText 保证字体 metrics 与可见文字一致
+                        StyledText {
+                            id: bubbleSizer
+                            text: msgDelegate.content
+                            font.pixelSize: Theme.fontSizeMedium
+                            visible: false
+                            // 无 wrapMode，implicitWidth = 文字的真实单行宽度
+                        }
 
                         StyledText {
                             id: bubbleText
-                            // 左右锚定到气泡内边距，文字在其中自动换行
                             anchors {
                                 left: parent.left
                                 right: parent.right
@@ -105,9 +115,8 @@ Item {
                             }
                             text: msgDelegate.content
                             wrapMode: Text.WordWrap
-                            color: msgDelegate.role === "user"
-                                ? Theme.onPrimary
-                                : Theme.surfaceText
+                            elide: Text.ElideNone
+                            color: "#e8eaf0"
                             font.pixelSize: Theme.fontSizeMedium
                         }
                     }

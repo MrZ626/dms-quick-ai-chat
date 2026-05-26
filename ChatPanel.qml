@@ -99,7 +99,7 @@ Item {
             // 没有消息时的提示文字
             StyledText {
                 anchors.centerIn: parent
-                text: "有什么可以帮到你的？"
+                text: "有什么可以帮到你？"
                 color: Theme.surfaceVariantText
                 font.pixelSize: Theme.fontSizeMedium
                 visible: chatService.messagesModel.count === 0

@@ -1,12 +1,14 @@
 {
   "id": "quickAiChat",
   "name": "Quick AI Chat",
-  "description": "快速唤出的 AI 聊天面板",
-  "version": "0.1.0",
-  "author": "z",
-  "type": "daemon",
   "capabilities": ["slideout"],
-  "component": "./QuickAiChat.qml",
+  "category": "chat",
+  "repo": "https://github.com/MrZ626/dms-quick-ai-chat.git",
+  "author": "MrZ_26",
+  "description": "Quick AI Chat Panel",
+  "compositors": ["niri"],
   "icon": "smart_toy",
-  "permissions": ["settings_read", "settings_write"]
+  "permissions": ["settings_read", "settings_write"],
+  "component": "./QuickAiChat.qml",
+  "type": "daemon"
 }

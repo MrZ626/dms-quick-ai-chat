@@ -24,7 +24,7 @@ Item {
     property bool showSettings: false
 
     // 便捷函数：读取输入框内容并发送
-    function sendCurrentMessage() {
+    function triggerSendMessage() {
         if (composer.text.trim().length === 0)
             return
         chatService.sendMessage(composer.text)
@@ -217,11 +217,11 @@ Item {
                                 event.accepted = true
                             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 if (event.modifiers & Qt.ShiftModifier) {
-                                    // Shift+Enter：换行
+                                    // 换行
                                     event.accepted = false
                                 } else {
-                                    // Enter：发送
-                                    root.sendCurrentMessage()
+                                    // 发送
+                                    root.triggerSendMessage()
                                     event.accepted = true
                                 }
                             }
@@ -247,7 +247,7 @@ Item {
                         tooltipText: "发送"
                         buttonSize: 32
                         iconSize: 16
-                        onClicked: root.sendCurrentMessage()
+                        onClicked: root.triggerSendMessage()
                     }
                 }
             }

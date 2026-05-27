@@ -9,13 +9,11 @@ Item {
     id: root
 
     // PluginService 持久化的命名空间 key，与 plugin.json 的 id 一致
-    readonly property string pluginId: "quickAiChat"
+    readonly property string pluginId: "DeepseekChat"
 
     // ── 设置项 ────────────────────────────────────────────────────
-    property string baseUrl:     ""
-    property string model:       ""
+    property bool proMode:       false
     property string apiKey:      ""
-    property real   temperature: 0
     property int    maxTokens:   0
 
     // ── 对外暴露的状态 ────────────────────────────────────────────
@@ -27,18 +25,12 @@ Item {
     Component.onCompleted: loadSettings()
 
     function loadSettings() {
-        baseUrl     = String(PluginService.loadPluginData(pluginId, "baseUrl",     "https://api.deepseek.com")).trim()
-        model       = String(PluginService.loadPluginData(pluginId, "model",       "deepseek-v4-flash")).trim()
         apiKey      = String(PluginService.loadPluginData(pluginId, "apiKey",      "")).trim()
-        temperature = Number(PluginService.loadPluginData(pluginId, "temperature", 1.0))
         maxTokens   = parseInt(PluginService.loadPluginData(pluginId, "maxTokens", 4096))
     }
 
     function saveSettings() {
-        PluginService.savePluginData(pluginId, "baseUrl",     baseUrl)
-        PluginService.savePluginData(pluginId, "model",       model)
         PluginService.savePluginData(pluginId, "apiKey",      apiKey)
-        PluginService.savePluginData(pluginId, "temperature", temperature)
         PluginService.savePluginData(pluginId, "maxTokens",   maxTokens)
     }
 
@@ -101,9 +93,8 @@ Item {
         _errorBuffer = ""
 
         const payload = JSON.stringify({
-            model:       model,
+            model:       proMode? "deepseek-v4-pro" : "deepseek-v4-flash",
             messages:    _buildMessages(),
-            temperature: temperature,
             max_tokens:  maxTokens,
             stream:      true
         })
@@ -113,7 +104,7 @@ Item {
             "-H", "Content-Type: application/json",
             "-H", "Authorization: Bearer " + apiKey,
             "-d", payload,
-            baseUrl.replace(/\/$/, "") + "/chat/completions"
+            "https://api.deepseek.com/chat/completions"
         ]
 
         chatProcess.running = true

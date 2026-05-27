@@ -14,7 +14,7 @@ Item {
     implicitWidth: 480
     implicitHeight: 640
 
-    // 唯一外部依赖，由 QuickAiChat.qml 注入
+    // 唯一外部依赖，由 DeepseekChat.qml 注入
     required property var chatService
 
     // 通知 slideout 收起（绑定到 Esc 键）
@@ -99,7 +99,7 @@ Item {
             // 没有消息时的提示文字
             StyledText {
                 anchors.centerIn: parent
-                text: "有什么可以帮到你？"
+                text: chatService.proMode ? "使用专家模式开始对话" : "使用快速模式开始对话"
                 color: Theme.surfaceVariantText
                 font.pixelSize: Theme.fontSizeMedium
                 visible: chatService.messagesModel.count === 0
@@ -173,7 +173,7 @@ Item {
                             enabled: false
                         }
 
-                        // 气泡文字（TextEdit 支持鼠标选中复制）
+                        // 气泡文字
                         // 流式生成中用 PlainText，完成后切换为 MarkdownText
                         TextEdit {
                             id: bubbleText
@@ -273,13 +273,12 @@ Item {
                         wrapMode: TextEdit.Wrap
                         font.pixelSize: Theme.fontSizeMedium
                         color: Theme.surfaceText
-                        // 光标颜色
                         cursorDelegate: Rectangle {
                             width: 2
                             color: Theme.primary
                         }
 
-                        // 占位提示（TextEdit 没有内置 placeholderText）
+                        // 占位提示
                         StyledText {
                             anchors {
                                 left: parent.left

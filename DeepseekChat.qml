@@ -1,8 +1,8 @@
-// QuickAiChat.qml
+// DeepseekChat.qml
 // daemon 入口：持有 ChatService 单例，为每个屏幕创建一个 DankSlideout
 //
 // toggle() 函数供 niri 快捷键通过 IPC 调用：
-//   dms ipc call plugins toggle quickAiChat
+//   dms ipc call plugins toggle deepseekChat
 
 import QtQuick
 import Quickshell
@@ -15,7 +15,7 @@ Item {
     // DMS 自动注入（备用，目前未使用）
     property var pluginService: null
 
-    // 供 IPC 调用：dms ipc call plugins toggle quickAiChat
+    // 供 IPC 调用：dms ipc call plugins toggle deepseekChat
     function toggle() {
         if (variants.instances.length > 0)
             variants.instances[0].toggle()
@@ -37,7 +37,7 @@ Item {
             id: slideout
             required property var modelData  // Quickshell 注入的屏幕对象
 
-            title: "Quick Chat"
+            title: "Deepseek"
             slideoutWidth: 480
             expandable: true
             expandedWidthValue: 960

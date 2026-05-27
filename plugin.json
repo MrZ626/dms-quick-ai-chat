@@ -1,14 +1,14 @@
 {
-  "id": "quickAiChat",
-  "name": "Quick AI Chat",
+  "id": "DeepseekChat",
+  "name": "Deepseek Chat",
   "capabilities": ["slideout"],
   "category": "chat",
-  "repo": "https://github.com/MrZ626/dms-quick-ai-chat.git",
+  "repo": "https://github.com/MrZ626/dms-deepseek-chat.git",
   "author": "MrZ_26",
-  "description": "Quick AI Chat Panel",
+  "description": "Deepseek Chat Panel",
   "compositors": ["niri"],
   "icon": "smart_toy",
   "permissions": ["settings_read", "settings_write"],
-  "component": "./QuickAiChat.qml",
+  "component": "./DeepseekChat.qml",
   "type": "daemon"
 }

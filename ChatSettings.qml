@@ -137,11 +137,8 @@ Item {
 
     // 写回 chatService 并发出 closeRequested（返回按钮和 Escape 共用）
     function triggerClose() {
-        chatService.baseUrl     = fieldBaseUrl.currentText
-        chatService.model       = fieldModel.currentText
         chatService.apiKey      = fieldApiKey.currentText
         chatService.maxTokens   = parseInt(fieldMaxTokens.currentText) || chatService.maxTokens
-        chatService.temperature = sliderTemp.currentValue
         chatService.saveSettings()
         root.closeRequested()
     }
@@ -190,18 +187,6 @@ Item {
             spacing: Theme.spacingS
 
             EditRow {
-                id: fieldBaseUrl
-                label: "服务商URL（必须和OpenAI兼容）"
-                value: root.chatService.baseUrl
-            }
-
-            EditRow {
-                id: fieldModel
-                label: "模型ID"
-                value: root.chatService.model
-            }
-
-            EditRow {
                 id: fieldApiKey
                 label: "API Key"
                 value: root.chatService.apiKey
@@ -212,15 +197,6 @@ Item {
                 id: fieldMaxTokens
                 label: "最大Token数"
                 value: root.chatService.maxTokens.toString()
-            }
-
-            SliderRow {
-                id: sliderTemp
-                label: "温度（越高思维越跳脱、随机、不准确）"
-                value: root.chatService.temperature
-                from: 0
-                to: 2
-                stepSize: 0.1
             }
         }
 

@@ -93,8 +93,9 @@ Item {
         _errorBuffer = ""
 
         const payload = JSON.stringify({
-            model:       proMode? "deepseek-v4-pro" : "deepseek-v4-flash",
+            model:       proMode ? "deepseek-v4-pro" : "deepseek-v4-flash",
             messages:    _buildMessages(),
+            thinking:   { type: "disabled" },
             max_tokens:  maxTokens,
             stream:      true
         })

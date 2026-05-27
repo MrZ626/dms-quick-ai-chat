@@ -116,8 +116,21 @@ Item {
                 spacing: Theme.spacingS
                 clip: true
 
-                // 新消息到来时自动滚动到底部
-                onCountChanged: Qt.callLater(() => positionViewAtEnd())
+                // 自动滚动标记：新消息时 true，用户手动拖动后 false
+                property bool _autoScroll: true
+
+                onCountChanged: {
+                    _autoScroll = true
+                    positionViewAtEnd()
+                }
+
+                onContentHeightChanged: {
+                    if (_autoScroll)
+                        Qt.callLater(() => positionViewAtEnd())
+                }
+
+                // 用户主动拖动/滚轮 → 切换手动模式
+                onMovementStarted: _autoScroll = false
 
                 delegate: Item {
                     id: msgDelegate

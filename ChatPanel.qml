@@ -101,7 +101,8 @@ Item {
                 anchors.centerIn: parent
                 text: chatService.proMode ? "使用专家模式开始对话" : "使用快速模式开始对话"
                 color: Theme.surfaceVariantText
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeLarge
+                font.bold: true
                 visible: chatService.messagesModel.count === 0
             }
 
@@ -284,7 +285,7 @@ Item {
                                 left: parent.left
                                 top: parent.top
                             }
-                            text: "输入消息内容…\nEnter 发送，Shift+Enter 换行，Esc 中断/关闭"
+                            text: "输入消息内容…\nEnter 发送，Shift+Enter 换行\nTab切换模型，Esc 中断/关闭"
                             color: Theme.surfaceVariantText
                             font.pixelSize: Theme.fontSizeMedium
                             visible: composer.text.length === 0
@@ -313,6 +314,19 @@ Item {
                         }
                     }
                 }
+            }
+
+            // Pro 模式切换按钮：浮在发送按钮左侧
+            DankActionButton {
+                id: proModeBtn
+                anchors.right:  sendBtn.left
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: Theme.spacingXS
+                iconName: "atom"
+                buttonSize: 32
+                iconSize: 18
+                iconColor: chatService.proMode ? Theme.primary : Theme.surfaceVariantText
+                onClicked: chatService.proMode = !chatService.proMode
             }
 
             // 发送 / 停止按钮：浮在输入框右下角，不参与 layout

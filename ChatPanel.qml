@@ -285,13 +285,12 @@ Item {
                                 left: parent.left
                                 top: parent.top
                             }
-                            text: "输入消息内容， Enter 发送\nShift+Enter 换行，Esc 中断生成/关闭面板"
+                            text: "输入消息内容…\nEnter 发送，Shift+Enter 换行，Esc 中断/关闭"
                             color: Theme.surfaceVariantText
                             font.pixelSize: Theme.fontSizeMedium
                             visible: composer.text.length === 0
                         }
 
-                        // Enter 发送，Shift+Enter 换行，Escape 由根节点统一处理
                         Keys.onPressed: event => {
                             if (event.key === Qt.Key_Escape) {
                                 root.handleEscape()

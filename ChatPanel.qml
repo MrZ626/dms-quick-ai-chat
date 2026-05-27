@@ -100,7 +100,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 textFormat: Text.MarkdownText
-                text: chatService.proMode ? "使用 **专家模式** 开始对话" : "使用 **快速模式** 开始对话"
+                text: chatService.proMode ? "使用  **󰇈  专家模式**  开始对话" : "使用  **󱐋  快速模式**  开始对话"
                 color: Theme.surfaceVariantText
                 font.pixelSize: Theme.fontSizeLarge
                 visible: chatService.messagesModel.count === 0
@@ -322,18 +322,16 @@ Item {
             // 专家模式开关
             Rectangle {
                 id: proModeBtn
-                anchors { right: sendBtn.left; bottom: parent.bottom; rightMargin: Theme.spacingXS; bottomMargin: Theme.spacingXS }
-                height: 32
-                width:  proModeBtnLabel.implicitWidth + Theme.spacingM * 2
-                radius: height / 2
+                anchors { right: sendBtn.left; bottom: parent.bottom; margins: Theme.spacingS }
+                width: 28; height: 28; radius: 14
                 color:        chatService.proMode ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15) : "transparent"
                 border.color: chatService.proMode ? Theme.primary : Theme.outlineMedium
 
-                StyledText {
-                    id: proModeBtnLabel
+                Text {
                     anchors.centerIn: parent
-                    text: "󰇈  专家模式"
-                    font.pixelSize: Theme.fontSizeSmall
+                    text: "󰇈"
+                    font.family: "Material Symbols Rounded"
+                    font.pixelSize: 17
                     color: chatService.proMode ? Theme.primary : Theme.surfaceVariantText
                 }
                 MouseArea {
@@ -343,17 +341,22 @@ Item {
             }
 
             // 发送 / 停止按钮：浮在输入框右下角，不参与 layout
-            DankActionButton {
+            Rectangle {
                 id: sendBtn
-                anchors.right:  parent.right
-                anchors.bottom: parent.bottom
-                anchors.margins: Theme.spacingXS
-                iconName: chatService.isLoading ? "stop_circle" : "send"
-                buttonSize: 32
-                iconSize: chatService.isLoading ? 20 : 16
-                iconColor: chatService.isLoading ? "#e05555" : Theme.primary
-                enabled: true
-                onClicked: chatService.isLoading ? chatService.abortRequest() : root.triggerSendMessage()
+                anchors { right: parent.right; bottom: parent.bottom; margins: Theme.spacingS }
+                width: 28; height: 28; radius: 14
+                color: Theme.primary
+
+                Text {
+                    anchors.centerIn: parent
+                    text: chatService.isLoading ? "󰓛" : "󰁝"
+                    font.family: "Material Symbols Rounded"
+                    font.pixelSize: 20
+                }
+                MouseArea {
+                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                    onClicked: chatService.isLoading ? chatService.abortRequest() : root.triggerSendMessage()
+                }
             }
         }
     }

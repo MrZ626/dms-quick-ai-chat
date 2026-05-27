@@ -195,7 +195,7 @@ Item {
 
             EditRow {
                 id: fieldMaxTokens
-                label: "最大Token数"
+                label: "最大输出Token数"
                 value: root.chatService.maxTokens.toString()
             }
         }

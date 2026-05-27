@@ -285,8 +285,8 @@ Item {
                                 left: parent.left
                                 top: parent.top
                             }
-                            text: "输入消息内容…\nEnter 发送，Shift+Enter 换行\nTab切换模型，Esc 中断/关闭"
-                            color: Theme.surfaceVariantText
+                            text: "输入消息内容…\nShift+Enter 换行，Tab 切换模型，Esc 中断/关闭"
+                            color: Qt.rgba(Theme.surfaceVariantText.r, Theme.surfaceVariantText.g, Theme.surfaceVariantText.b, 0.62)
                             font.pixelSize: Theme.fontSizeMedium
                             visible: composer.text.length === 0
                         }

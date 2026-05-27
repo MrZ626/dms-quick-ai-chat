@@ -45,6 +45,7 @@ Item {
             content: ChatPanel {
                 chatService: chatLogic
                 onHideRequested: slideout.hide()
+                onToggleExpandRequested: slideout.expandedWidth = !slideout.expandedWidth
             }
         }
     }

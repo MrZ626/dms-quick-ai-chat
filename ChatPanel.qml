@@ -19,6 +19,8 @@ Item {
 
     // 通知 slideout 收起（绑定到 Esc 键）
     signal hideRequested
+    // 通知 slideout 切换展开状态（绑定到 Ctrl+Tab）
+    signal toggleExpandRequested
 
     // 控制设置面板显隐
     property bool showSettings: false
@@ -285,7 +287,7 @@ Item {
                                 left: parent.left
                                 top: parent.top
                             }
-                            text: "输入消息内容…\nShift+Enter 换行，Tab 切换模型，Esc 中断/关闭"
+                            text: "输入消息内容…\nShift+Enter 换行，Esc 中断/关闭\nTab 切换模型，Ctrl+Tab 切换展开"
                             color: Qt.rgba(Theme.surfaceVariantText.r, Theme.surfaceVariantText.g, Theme.surfaceVariantText.b, 0.62)
                             font.pixelSize: Theme.fontSizeMedium
                             visible: composer.text.length === 0
@@ -296,7 +298,11 @@ Item {
                                 root.handleEscape()
                                 event.accepted = true
                             } else if (event.key === Qt.Key_Tab) {
-                                chatService.proMode = !chatService.proMode
+                                if (event.modifiers & Qt.ControlModifier) {
+                                    root.toggleExpandRequested()
+                                } else {
+                                    chatService.proMode = !chatService.proMode
+                                }
                                 event.accepted = true
                             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 if (event.modifiers & Qt.ShiftModifier) {

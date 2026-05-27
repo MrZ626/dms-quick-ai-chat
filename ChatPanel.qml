@@ -295,6 +295,9 @@ Item {
                             if (event.key === Qt.Key_Escape) {
                                 root.handleEscape()
                                 event.accepted = true
+                            } else if (event.key === Qt.Key_Tab) {
+                                chatService.proMode = !chatService.proMode
+                                event.accepted = true
                             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 if (event.modifiers & Qt.ShiftModifier) {
                                     // 换行

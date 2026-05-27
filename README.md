@@ -1,21 +1,23 @@
 # Quick AI Chat Plugin for DankMaterialShell
 
-A slide-out AI chat panel for DankMaterialShell, powered by any OpenAI-compatible API (DeepSeek, OpenAI, etc.).
+基于DMS的快速AI聊天插件
 
-This project was inspired by [this repo](https://github.com/devnullvoid/dms-ai-assistant), but made from scratch, also mainly by AI agent (Claude Sonnet 4.6)
+受devnullvoid的[这个仓库](https://github.com/devnullvoid/dms-ai-assistant)启发
 
-## Features
+由Claude Sonnet 4.6从头编写
 
-- Pros
-    - Streaming responses via SSE (which devnullvoid's plugin doesn't work correctly)
-    - Cleaner UX (Focus on textbox immediately, Esc to back from setting / interrupt generation / close panel)
-    - Basic Markdown rendering
-- Cons
-    - now only supports OpenAI-compatible APIs
+## 功能
 
-## Installation & Setup
+- 优点
+    - 支持流式传输（devnullvoid 的插件无法正确工作）
+    - 支持Markdown
+    - 交互更高效简洁
+- 缺点
+    - 目前仅支持 OpenAI 兼容的 API
 
-Get the plugin:
+## 安装
+
+下载：
 
 ```bash
 mkdir -p ~/.config/DankMaterialShell/plugins
@@ -23,13 +25,13 @@ cd ~/.config/DankMaterialShell/plugins
 git clone https://github.com/MrZ626/dms-quick-ai-chat.git quickAiChat
 ```
 
-Restart dms:
+重启 DMS：
 
 ```bash
 `dms restart`
 ```
 
-Add a keybind in `~/.config/niri/dms/binds.kdl`
+在 `~/.config/niri/dms/binds.kdl` 中添加快捷键绑定：
 
 ```
 Mod+Shift+F23 repeat=false hotkey-overlay-title="Quick AI Chat" { spawn "dms" "ipc" "call" "plugins" "toggle" "quickAiChat"; }

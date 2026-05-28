@@ -300,7 +300,17 @@ Item {
                                 left: parent.left
                                 top: parent.top
                             }
-                            text: "输入消息内容…\nShift+Enter 换行，Esc 中断/关闭，Ctrl+N 清空\nTab 切换模型，Ctrl+Tab 切换展开"
+                            text: "输入消息内容…"
+                            color: Qt.rgba(Theme.surfaceVariantText.r, Theme.surfaceVariantText.g, Theme.surfaceVariantText.b, 0.62)
+                            font.pixelSize: Theme.fontSizeMedium
+                            visible: composer.text.length === 0
+                        }
+                        StyledText {
+                            anchors {
+                                left: parent.left
+                                bottom: parent.bottom
+                            }
+                            text: "Esc中断/关闭，Tab展开\nCtrl+N清空，Ctrl+M切模型"
                             color: Qt.rgba(Theme.surfaceVariantText.r, Theme.surfaceVariantText.g, Theme.surfaceVariantText.b, 0.62)
                             font.pixelSize: Theme.fontSizeMedium
                             visible: composer.text.length === 0
@@ -313,22 +323,15 @@ Item {
                             } else if (event.key === Qt.Key_N && (event.modifiers & Qt.ControlModifier)) {
                                 chatService.clearHistory()
                                 event.accepted = true
-                            } else if (event.key === Qt.Key_Tab) {
-                                if (event.modifiers & Qt.ControlModifier) {
-                                    root.toggleExpandRequested()
-                                } else {
-                                    chatService.proMode = !chatService.proMode
-                                }
+                            } else if (event.key === Qt.Key_M && (event.modifiers & Qt.ControlModifier)) {
+                                chatService.proMode = !chatService.proMode
                                 event.accepted = true
-                            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                if (event.modifiers & Qt.ShiftModifier) {
-                                    // 换行
-                                    event.accepted = false
-                                } else {
-                                    // 发送
-                                    root.triggerSendMessage()
-                                    event.accepted = true
-                                }
+                            } else if (event.key === Qt.Key_Tab) {
+                                root.toggleExpandRequested()
+                                event.accepted = true
+                            } else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && !(event.modifiers & Qt.ShiftModifier)) {
+                                root.triggerSendMessage()
+                                event.accepted = true
                             }
                         }
 
